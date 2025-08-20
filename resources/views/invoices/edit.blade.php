@@ -19,6 +19,20 @@
         @method('PUT')
 
         <div class="mb-3">
+            <label class="form-label">Invoice Number</label>
+            <input type="text" name="invoice_number" class="form-control"
+                   value="{{ old('invoice_number', $invoice->invoice_number) }}" required>
+        </div>
+
+        <div class="mb-3">
+    <label class="form-label">Invoice Date</label>
+    <input type="text" name="invoice_date" class="form-control"
+           value="{{ old('invoice_date', (is_a($invoice->invoice_date, 'Illuminate\Support\Carbon') ? $invoice->invoice_date->format('d-m-Y') : \Carbon\Carbon::parse($invoice->invoice_date)->format('d-m-Y'))) }}"
+           required>
+    <small class="text-muted">Format: DD-MM-YYYY</small>
+</div>
+
+        <div class="mb-3">
             <label class="form-label">Client</label>
             <select name="client_id" class="form-control" required>
                 @foreach($clients as $client)
@@ -39,6 +53,16 @@
             <textarea name="description" class="form-control" rows="2">{{ $invoice->description }}</textarea>
         </div>
 
+        {{-- Status Dropdown --}}
+        <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-control" required>
+                <option value="pending" {{ $invoice->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="paid" {{ $invoice->status == 'paid' ? 'selected' : '' }}>Paid</option>
+                <option value="overdue" {{ $invoice->status == 'overdue' ? 'selected' : '' }}>Overdue</option>
+            </select>
+        </div>
+
         <button type="submit" class="btn btn-primary">Update Invoice</button>
     </form>
-@endsection
+    @endsection

@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('content')
@@ -56,9 +57,9 @@
         <div class="mb-3">
             <label for="status" class="form-label">Status</label>
             <select name="status" id="status" class="form-control" required>
-                <option value="Pending" selected>Pending</option>
-                <option value="Paid">Paid</option>
-                <option value="Overdue">Overdue</option>
+                <option value="pending" selected>Pending</option>
+                <option value="paid">Paid</option>
+                <option value="overdue">Overdue</option>
             </select>
         </div>
 
@@ -68,7 +69,7 @@
 
 @section('scripts')
     <script>
-        // Flatpickr or Bootstrap Datepicker (choose one based on your setup)
+        // Initialize flatpickr for date input
         document.addEventListener("DOMContentLoaded", function () {
             flatpickr(".datepicker", {
                 dateFormat: "d-m-Y",
@@ -77,3 +78,4 @@
         });
     </script>
 @endsection
+

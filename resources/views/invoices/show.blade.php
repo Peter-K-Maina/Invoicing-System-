@@ -22,7 +22,7 @@
                 <strong>Company:</strong> {{ $invoice->client->company }} <br>
                 <strong>Invoice Date:</strong> {{ \Carbon\Carbon::parse($invoice->invoice_date)->toFormattedDateString() }} <br>
                 <strong>Due Date:</strong> {{ \Carbon\Carbon::parse($invoice->due_date)->toFormattedDateString() }} <br>
-                <strong>Total Amount:</strong> KES {{ number_format($invoice->total_amount) }} <br>
+                <strong>Total Amount:</strong> KES {{ number_format($invoice->amount, 2) }} <br>
                 <strong>Status:</strong>
                 <span class="badge bg-{{ $invoice->status === 'paid' ? 'success' : ($invoice->status === 'overdue' ? 'danger' : 'warning') }}">
                     {{ ucfirst($invoice->status) }}
@@ -35,16 +35,51 @@
                     <i class="fa fa-file-pdf"></i> Download PDF
                 </a>
 
-                <form method="POST" action="{{ route('mpesa.stkpush') }}" class="d-flex align-items-center gap-2">
-                    @csrf
-                    <input type="hidden" name="amount" value="{{ $invoice->total_amount }}">
-                    <input type="hidden" name="invoice_id" value="{{ $invoice->id }}">
-                    <input type="text" name="phone" placeholder="2547..." class="form-control w-auto" required>
-                    <button type="submit" class="btn btn-success">
-                        <i class="fa fa-mobile-alt"></i> Pay with M-Pesa
-                    </button>
-                </form>
+                {{-- Only show "Send Invoice" if status is pending --}}
+                @if($invoice->status === 'pending')
+                    <form action="{{ route('invoices.send', $invoice->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-envelope"></i> Send Invoice
+                        </button>
+                    </form>
+                @endif
+
+                {{-- Demo Payment Button (Sandbox) --}}
+                @if($invoice->status !== 'paid')
+                    <form action="{{ route('mpesa.demo.pay', $invoice) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button class="btn btn-secondary">
+                            Demo Payment (Sandbox)
+                        </button>
+                    </form>
+                @endif
             </div>
+
+            {{-- Show payment form only if status is pending --}}
+            @if($invoice->status === 'pending')
+                <div class="mt-6 border-top pt-4">
+                    <h5 class="mb-3">Pay with M-Pesa</h5>
+                    <form action="{{ route('invoices.pay', $invoice->id) }}" method="POST" class="d-flex flex-column gap-3">
+                        @csrf
+                        <div>
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="text" name="phone" id="phone"
+                                   placeholder="e.g. 2547XXXXXXXX"
+                                   class="form-control w-auto" required>
+                        </div>
+                        <div>
+                            <label for="amount" class="form-label">Amount</label>
+                            <input type="text" name="amount" id="amount"
+                                   value="{{ $invoice->amount }}"
+                                   readonly class="form-control w-auto bg-light">
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-mobile-alt"></i> Pay Now
+                        </button>
+                    </form>
+                </div>
+            @endif
         </div>
     </div>
 </div>

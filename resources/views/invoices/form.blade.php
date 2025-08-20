@@ -23,12 +23,12 @@
 
     <div class="mb-3">
         <label for="invoice_date" class="form-label">Invoice Date</label>
-        <input type="date" name="invoice_date" id="invoice_date" class="form-control" value="{{ old('invoice_date', isset($invoice) ? $invoice->invoice_date->format('Y-m-d') : '') }}" required>
+        <input type="date" name="invoice_date" id="invoice_date" class="form-control" value="{{ old('invoice_date', isset($invoice) ? $invoice->invoice_date->format('d-m-Y') : '') }}" required>
     </div>
 
     <div class="mb-3">
         <label for="due_date" class="form-label">Due Date</label>
-        <input type="date" name="due_date" id="due_date" class="form-control" value="{{ old('due_date', isset($invoice) ? $invoice->due_date->format('Y-m-d') : '') }}">
+        <input type="date" name="due_date" id="due_date" class="form-control" value="{{ old('due_date', isset($invoice) ? $invoice->due_date->format('d-m-Y') : '') }}">
     </div>
 
     <div class="mb-3">
@@ -44,7 +44,7 @@
     <div class="mb-3">
         <label for="status" class="form-label">Status</label>
         <select name="status" id="status" class="form-select" required>
-            <option value="unpaid" {{ (isset($invoice) && $invoice->status == 'unpaid') ? 'selected' : '' }}>Unpaid</option>
+            <option value="pending" {{ (isset($invoice) && $invoice->status == 'pending') ? 'selected' : '' }}>Pending</option>
             <option value="paid" {{ (isset($invoice) && $invoice->status == 'paid') ? 'selected' : '' }}>Paid</option>
             <option value="overdue" {{ (isset($invoice) && $invoice->status == 'overdue') ? 'selected' : '' }}>Overdue</option>
         </select>

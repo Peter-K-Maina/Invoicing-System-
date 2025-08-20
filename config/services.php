@@ -31,4 +31,15 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'mpesa' => [
+        'consumer_key'    => env('MPESA_CONSUMER_KEY'),
+        'consumer_secret' => env('MPESA_CONSUMER_SECRET'),
+        'shortcode'       => env('MPESA_SHORTCODE'),
+        'passkey'         => env('MPESA_PASSKEY'),
+        'env'             => env('MPESA_ENV', 'sandbox'),
+        'callback_url'    => env('MPESA_CALLBACK_URL'),
+        'c2b_validate_url' => env('MPESA_C2B_VALIDATE_URL', 'https://https://9abd3dae60f2.ngrok-free.app/api/mpesa/c2b/validate'),
+        'c2b_confirm_url'  => env('MPESA_C2B_CONFIRM_URL',  'https://https://9abd3dae60f2.ngrok-free.app/api/mpesa/c2b/confirm'),
+],
+
 ];

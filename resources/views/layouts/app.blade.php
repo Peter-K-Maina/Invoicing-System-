@@ -7,10 +7,12 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('images/favicon.png') }}" type="image/png">
+
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -20,18 +22,27 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
         @include('layouts.navigation')
 
-        <!-- Page Heading -->
-        @if (isset($header))
-            <header class="bg-white dark:bg-gray-800 shadow">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    {{ $header }}
-                </div>
-            </header>
-        @endif
+       <!-- Page Heading -->
+    @if (isset($header))
+        <header class="bg-gradient-to-r from-[#27aae1] to-[#262262] shadow text-white flex items-center px-6 py-4">
+          <!-- Brand Logo + Title -->
+            <a href="{{ route('dashboard') }}" class="flex items-center">
+                <img src="{{ asset('public\images\lipasmart-logo.png') }}" alt="LipaSmart Logo" height="60" width="60">
+                <h1 class="ms-3 text-xl font-semibold">LipaSmart Invoicing System</h1>
+            </a>
+
+            <!-- Dynamic Page Header Content -->
+            <div class="ml-auto">
+              {{ $header }}
+            </div>
+        </header>
+    @endif
+
 
         <!-- Page Content -->
         <main class="py-4">

@@ -7,5 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'invoice_id',
+        'amount',
+        'method',
+        'mpesa_receipt',
+        'payer_phone',
+        'paid_at',
+    ];
+
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
+    }
 }

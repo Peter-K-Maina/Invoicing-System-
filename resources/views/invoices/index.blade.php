@@ -27,7 +27,6 @@
                         <th>Invoice No.</th>
                         <th>Amount</th>
                         <th>Status</th>
-                        <th>Due</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -37,13 +36,12 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $invoice->client->name }}</td>
                             <td>{{ $invoice->invoice_number }}</td>
-                            <td>KES {{ number_format($invoice->total_amount) }}</td>
+                            <td>KES {{ number_format($invoice->amount) }}</td>
                             <td>
                                 <span class="badge bg-{{ $invoice->status === 'paid' ? 'success' : ($invoice->status === 'overdue' ? 'danger' : 'warning') }}">
                                     {{ ucfirst($invoice->status) }}
                                 </span>
                             </td>
-                            <td>{{ \Carbon\Carbon::parse($invoice->due_date)->diffForHumans() }}</td>
                             <td>
                                 <a href="{{ route('invoices.show', $invoice) }}" class="btn btn-sm btn-outline-primary">View</a>
                                 <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-sm btn-outline-secondary">Edit</a>

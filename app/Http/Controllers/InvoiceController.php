@@ -1,10 +1,14 @@
-<?php
+<?php 
 
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\Client;
+use App\Mail\InvoiceMail;
+use App\Services\MpesaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
@@ -19,7 +23,7 @@ class InvoiceController extends Controller
     {
         $latestInvoice = Invoice::latest()->first();
         $nextNumber = $latestInvoice ? $latestInvoice->id + 1 : 1;
-        $invoiceNumber = 'INV-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT); // e.g., INV-00001
+        $invoiceNumber = 'INV-' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
 
         $clients = Client::all();
         return view('invoices.create', compact('clients', 'invoiceNumber'));
@@ -30,19 +34,17 @@ class InvoiceController extends Controller
         $request->validate([
             'client_id' => 'required|exists:clients,id',
             'invoice_number' => 'required|unique:invoices',
-            'invoice_date' => 'required|date',
-            'due_date' => 'nullable|date|after_or_equal:invoice_date',
-            'amount' => 'required|numeric|min:0',
+            'invoice_date' => 'required|date_format:d-m-Y',
+            'amount' => 'required|numeric|min:1',
             'description' => 'nullable|string',
-            'status' => 'required|in:unpaid,paid,overdue',
+            'status' => 'required|in:pending,paid,overdue',
         ]);
 
         Invoice::create([
             'client_id' => $request->client_id,
             'user_id' => auth()->id(),
             'invoice_number' => $request->invoice_number,
-            'invoice_date' => $request->invoice_date,
-            'due_date' => $request->due_date,
+            'invoice_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $request->invoice_date)->format('Y-m-d'),
             'amount' => $request->amount,
             'description' => $request->description,
             'status' => $request->status,
@@ -67,18 +69,18 @@ class InvoiceController extends Controller
         $request->validate([
             'client_id' => 'required|exists:clients,id',
             'invoice_number' => 'required|unique:invoices,invoice_number,' . $invoice->id,
-            'invoice_date' => 'required|date',
-            'due_date' => 'nullable|date|after_or_equal:invoice_date',
+            'invoice_date' => 'required|date_format:d-m-Y',
             'amount' => 'required|numeric|min:0',
             'description' => 'nullable|string',
-            'status' => 'required|in:unpaid,paid,overdue',
+            'status' => 'required|in:pending,paid,overdue',
         ]);
+
+        
 
         $invoice->update([
             'client_id' => $request->client_id,
             'invoice_number' => $request->invoice_number,
-            'invoice_date' => $request->invoice_date,
-            'due_date' => $request->due_date,
+            'invoice_date' => \Carbon\Carbon::createFromFormat('d-m-Y', $request->invoice_date)->format('Y-m-d'),
             'amount' => $request->amount,
             'description' => $request->description,
             'status' => $request->status,
@@ -86,6 +88,49 @@ class InvoiceController extends Controller
 
         return redirect()->route('invoices.index')->with('success', 'Invoice updated successfully.');
     }
+
+    public function send(Invoice $invoice)
+    {
+        try {
+            Mail::to($invoice->client->email)->send(new InvoiceMail($invoice));
+
+            $invoice->status = 'pending'; 
+            $invoice->save();
+
+            return redirect()
+                ->route('invoices.show', $invoice->id)
+                ->with('success', 'Invoice sent successfully.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('invoices.show', $invoice->id)
+                ->with('error', 'Failed to send invoice: ' . $e->getMessage());
+        }
+    }
+
+    // Pay() method to use MpesaService
+    public function pay(Request $request, Invoice $invoice, MpesaService $mpesa)
+    {
+        try {
+            // Ensure valid whole number amount
+            $amount = (int) ceil($invoice->amount);
+
+            if ($amount < 1) {
+                return back()->with('error', 'Invalid amount. Must be at least 1 KES.');
+            }
+
+            $mpesa->stkPush(
+                $request->input('phone'),
+                $amount,
+                $invoice->id
+            );
+
+            return back()->with('success', 'STK Push sent. Check your phone.');
+        } catch (\Exception $e) {
+            Log::error('Invoice payment error: ' . $e->getMessage());
+            return back()->with('error', 'Payment request failed. Please try again later.');
+        }
+    }
+
 
     public function destroy(Invoice $invoice)
     {
