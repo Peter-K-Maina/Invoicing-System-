@@ -140,8 +140,24 @@ class InvoiceController extends Controller
 
     public function download($id)
     {
-        $invoice = Invoice::with('client')->findOrFail($id);
-        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
-        return $pdf->download('invoice_' . $invoice->invoice_number . '.pdf');
+        try {
+            $invoice = Invoice::with('client')->findOrFail($id);
+            
+            // Check if the logo file exists
+            $logoPath = public_path('images/lipasmart-logo.png');
+            if (!file_exists($logoPath)) {
+                Log::error('Invoice PDF Generation: Logo file not found at ' . $logoPath);
+            }
+
+            // Load the PDF with error handling
+            $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
+            
+            Log::info('Invoice PDF Generation: Successfully generated PDF for invoice #' . $invoice->invoice_number);
+            
+            return $pdf->download('invoice_' . $invoice->invoice_number . '.pdf');
+        } catch (\Exception $e) {
+            Log::error('Invoice PDF Generation Failed: ' . $e->getMessage());
+            return back()->with('error', 'Failed to generate PDF. Please try again later.');
+        }
     }
 }
