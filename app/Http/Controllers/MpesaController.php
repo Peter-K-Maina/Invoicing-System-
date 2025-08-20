@@ -132,11 +132,11 @@ class MpesaController extends Controller
 
                 $payment = Payment::create([
                     'invoice_id' => null,
-                    'amount' => $metadata->firstWhere('Name', 'Amount')['Value'] ?? null,
-                    'method' => 'mpesa',
+                    'amount_paid' => $metadata->firstWhere('Name', 'Amount')['Value'] ?? null,
+                    'payment_method' => 'mpesa',
                     'mpesa_receipt' => $metadata->firstWhere('Name', 'MpesaReceiptNumber')['Value'] ?? null,
                     'payer_phone' => $metadata->firstWhere('Name', 'PhoneNumber')['Value'] ?? null,
-                    'paid_at' => Carbon::now()
+                    'payment_date' => Carbon::now()
                 ]);
 
                 $invoice = Invoice::where('checkout_request_id', $checkoutRequestId)->first();
@@ -146,7 +146,7 @@ class MpesaController extends Controller
                     $payment->update(['invoice_id' => $invoice->id]);
 
                     // Calculate total amount paid
-                    $totalPaid = $invoice->payments()->sum('amount');
+                    $totalPaid = $invoice->payments()->sum('amount_paid');
 
                     // Check if payment exceeds invoice amount
                     if ($totalPaid > $invoice->amount) {
@@ -169,7 +169,7 @@ class MpesaController extends Controller
 
                     Log::info('Payment Success', [
                         'invoice_id' => $invoice->id,
-                        'amount' => $payment->amount,
+                        'amount' => $payment->amount_paid,
                         'receipt' => $payment->mpesa_receipt
                     ]);
                 }
@@ -255,15 +255,15 @@ class MpesaController extends Controller
             // Create payment record
             $payment = Payment::create([
                 'invoice_id' => $invoice->id,
-                'amount' => $amount,
-                'method' => 'mpesa',
+                'amount_paid' => $amount,
+                'payment_method' => 'mpesa',
                 'mpesa_receipt' => 'DEMO-' . strtoupper(uniqid()),
                 'payer_phone' => '254708374149',
-                'paid_at' => Carbon::now()
+                'payment_date' => Carbon::now()
             ]);
 
             // Calculate total amount paid
-            $totalPaid = $invoice->payments()->sum('amount');
+            $totalPaid = $invoice->payments()->sum('amount_paid');
 
             // Check if payment exceeds invoice amount
             if ($totalPaid > $invoice->amount) {

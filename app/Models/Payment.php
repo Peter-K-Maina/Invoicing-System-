@@ -9,11 +9,11 @@ class Payment extends Model
 {
     protected $fillable = [
         'invoice_id',
-        'amount',
-        'method',
+        'amount_paid',
+        'payment_method',
         'mpesa_receipt',
         'payer_phone',
-        'paid_at',
+        'payment_date',
     ];
 
     public function invoice()

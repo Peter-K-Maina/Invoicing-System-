@@ -12,7 +12,7 @@ class HomeController extends Controller
     {
         $clientCount = Client::count();
         $invoiceCount = Invoice::count();
-        $revenue = Invoice::where('status', 'Paid')->sum('total_amount');
+        $revenue = Invoice::where('status', 'paid')->sum('amount');
         $overdueCount = Invoice::where('status', 'Overdue')->count();
 
         return view('home', compact('clientCount', 'invoiceCount', 'revenue', 'overdueCount'));
