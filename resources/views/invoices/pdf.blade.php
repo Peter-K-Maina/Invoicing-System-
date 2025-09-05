@@ -74,7 +74,7 @@
 </head>
 <body>
     <div class="header">
-        <img src="{{ asset('images/lipasmart-logo.png') }}" alt="LipaSmart" class="logo" style="width: 120px; height: auto;">
+        <img src="{{ public_path('images/lipasmart-logo.png') }}" alt="LipaSmart" class="logo" style="width: 200px; height: auto;">
         <table style="width: 100%">
             <tr>
                 <td>
